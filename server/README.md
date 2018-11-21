@@ -1,3 +1,7 @@
-## Okta Spring Boot Vue Server
+# Okta Spring Boot Vue Server
 
-Run using `./gradlew bootRun`
+## Run
+```
+./gradlew bootRun
+```
+
