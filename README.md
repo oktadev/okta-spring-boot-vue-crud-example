@@ -75,7 +75,7 @@ Vue.use(Auth, {
 This example uses the following open source libraries from Okta:
 
 * [Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)
-* [Okta Angular SDK](https://github.com/okta/okta-oidc-js/tree/master/packages/okta-vue)
+* [Okta Vue SDK](https://github.com/okta/okta-oidc-js/tree/master/packages/okta-vue)
 
 ## Help
 
