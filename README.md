@@ -6,8 +6,6 @@ Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://develo
 
 **Prerequisites:** [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), [Node.js](https://nodejs.org/), and [Yarn](https://yarnpkg.com/). 
 
-_For Java 10+, you'll need to change the `java.version` property and `jaxb-api` as a dependency. See Josh Long's [spring-boot-and-java-10](https://github.com/joshlong/spring-boot-and-java-10) project on GitHub for more information._
-
 > [Okta](https://developer.okta.com/) has Authentication and User Management APIs that reduce development time with instant-on, scalable user infrastructure. Okta's intuitive API and expert support make it easy for developers to authenticate, manage and secure users and roles in any application.
 
 * [Getting Started](#getting-started)
@@ -64,11 +62,6 @@ okta:
 For the client, set the `issuer` and copy the `clientId` into `client/src/router.js`.
 
 ```js
-const config = {
-  issuer: 'https://{yourOktaDomain}.com/oauth2/default',
-  redirectUri: window.location.origin + '/implicit/callback',
-  clientId: '{clientId}'
-};
 Vue.use(Auth, {  
   issuer: 'https://{yourOktaDomain}/oauth2/default',  
   client_id: '{yourClientId}',  
