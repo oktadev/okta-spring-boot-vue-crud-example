@@ -1,47 +1,48 @@
 import axios from 'axios'
-import Vue from 'vue'
-
-const SERVER_URL = 'http://localhost:9000';
 
 const instance = axios.create({
-  baseURL: SERVER_URL,
+  baseURL: process.env.VUE_APP_SERVER_URI,
   timeout: 1000
 });
 
-export default {
+const createApi = (auth) => {
 
-  async execute(method, resource, data, config) {
-    let accessToken = await Vue.prototype.$auth.getAccessToken()
-    return instance({
-      method:method,
-      url: resource,
-      data,
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
-      ...config
-    })
-  },
+  instance.interceptors.request.use(async function (config) {
+    let accessToken = await auth.getAccessToken()
+    config.headers = {
+      Authorization: `Bearer ${accessToken}`
+    }
+    return config;
+  }, function (error) {
+    return Promise.reject(error);
+  });
 
-  // (C)reate
-  createNew(text, completed) {
-    return this.execute('POST', 'todos', {title: text, completed: completed})
-  },
-  // (R)ead
-  getAll() {
-    return this.execute('GET','todos', null, {
-      transformResponse: [function (data) {
-        return data? JSON.parse(data)._embedded.todos : data;
-      }]
-    })
-  },
-  // (U)pdate
-  updateForId(id, text, completed) {
-    return this.execute('PUT', 'todos/' + id, { title: text, completed: completed })
-  },
+  return {
 
-  // (D)elete
-  removeForId(id) {
-    return this.execute('DELETE', 'todos/'+id)
+    // (C)reate
+    createNew(text, completed) {
+      return instance.post('/todos', {title: text, completed: completed})
+    },
+
+    // (R)ead
+    getAll() {
+      return instance.get('/todos', {
+        transformResponse: [function (data) {
+          return data ? JSON.parse(data)._embedded.todos : data;
+        }]
+      })
+    },
+
+    // (U)pdate
+    updateForId(id, text, completed) {
+      return instance.put('todos/' + id, {title: text, completed: completed})
+    },
+
+    // (D)elete
+    removeForId(id) {
+      return instance.delete('todos/' + id)
+    }
   }
 }
+
+export default createApi
