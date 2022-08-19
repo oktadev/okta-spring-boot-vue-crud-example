@@ -1,105 +1,97 @@
 <template>
-    <div>
-        <h1 class="title">Todos</h1>
-        <h1 class="email">{{userEmail}}</h1>
-        <section class="todoapp">
-            <div v-if="loading">
-                <h1 class="loading">Loading...</h1>
-            </div>
-            <div v-else>
-                <header class="header">
-                    <input class="new-todo"
-                           autofocus autocomplete="off"
-                           :placeholder="this.inputPlaceholder"
-                           v-model="newTodo"
-                           @keyup.enter="addTodo">
-                </header>
-                <section class="main" v-show="todos.length" v-cloak>
-                    <input class="toggle-all" type="checkbox" v-model="allDone">
-                    <ul class="todo-list">
-                        <li v-for="todo in filteredTodos"
-                            class="todo"
-                            :key="todo.id"
-                            :class="{ completed: todo.completed, editing: todo == editedTodo }">
-                            <div class="view">
-                                <input class="toggle" type="checkbox" v-model="todo.completed" @change="completeTodo(todo)">
-                                <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-                                <button class="destroy" @click="removeTodo(todo)"></button>
-                            </div>
-                            <input class="edit" type="text"
-                                   v-model="todo.title"
-                                   v-todo-focus="todo == editedTodo"
-                                   @blur="doneEdit(todo)"
-                                   @keyup.enter="doneEdit(todo)"
-                                   @keyup.esc="cancelEdit(todo)">
-                        </li>
-                    </ul>
-                </section>
-                <footer class="footer" v-show="todos.length" v-cloak>
-          <span class="todo-count">
-            <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
-          </span>
-                    <ul class="filters">
-                        <li><a href="#/all" @click="setVisibility('all')" :class="{ selected: visibility == 'all' }">All</a></li>
-                        <li><a href="#/active" @click="setVisibility('active')" :class="{ selected: visibility == 'active' }">Active</a></li>
-                        <li><a href="#/completed" @click="setVisibility('completed')" :class="{ selected: visibility == 'completed' }">Completed</a></li>
-                    </ul>
-                    <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
-                        Clear completed
-                    </button>
-                </footer>
-            </div>
-        </section>
-        <div v-if="error" class="error" @click="handleErrorClick">
-            ERROR: {{this.error}}
-        </div>
+  <div class="column justify-center items-center" id="row-container">
+    <q-card class="my-card">
+      <q-card-section>
+        <div class="text-h4">Todos</div>
+        <q-list padding>
+          <q-item
+              v-for="item in filteredTodos" :key="item.id"
+              clickable
+              v-ripple
+              rounded
+              class="todo-item"
+          >
+            <TodoItem
+                :item="item"
+                :deleteMe="handleClickDelete"
+                :showError="handleShowError"
+                :setCompleted="handleSetCompleted"
+                :setTitle="handleSetTitle"
+                v-if="filter === 'all' || (filter === 'incomplete' && !item.completed) || (filter === 'complete' && item.completed)"
+            ></TodoItem>
+          </q-item>
+        </q-list>
+      </q-card-section>
+      <q-card-section>
+        <q-item>
+          <q-item-section avatar class="add-item-icon">
+            <q-icon color="green" name="add_circle_outline"/>
+          </q-item-section>
+          <q-item-section>
+            <input
+                type="text"
+                ref="newTodoInput"
+                v-model="newTodoTitle"
+                @change="handleDoneEditingNewTodo"
+                @blur="handleCancelEditingNewTodo"
+            />
+          </q-item-section>
+        </q-item>
+      </q-card-section>
+      <q-card-section style="text-align: center">
+        <q-btn color="amber" text-color="black" label="Remove Completed" style="margin-right: 10px"
+               @click="handleDeleteCompleted"></q-btn>
+        <q-btn-group>
+          <q-btn glossy :color="filter === 'all' ? 'primary' : 'white'" text-color="black" label="All"
+                 @click="handleSetFilter('all')"/>
+          <q-btn glossy :color="filter === 'complete' ? 'primary' : 'white'" text-color="black" label="Completed"
+                 @click="handleSetFilter('complete')"/>
+          <q-btn glossy :color="filter === 'incomplete' ? 'primary' : 'white'" text-color="black" label="Incomplete"
+                 @click="handleSetFilter('incomplete')"/>
+          <q-tooltip>
+            Filter the todos
+          </q-tooltip>
+        </q-btn-group>
+      </q-card-section>
+    </q-card>
+    <div v-if="error" class="error">
+      <q-banner inline-actions class="text-white bg-red" @click="handleErrorClick">
+        ERROR: {{ this.error }}
+      </q-banner>
     </div>
+  </div>
 </template>
 
 <script>
 
-  import api from '../Api';
+import TodoItem from "@/components/TodoItem";
+import { ref } from 'vue'
 
-  // visibility filters
-  let filters = {
-    all: function (todos) {
-      return todos
-    },
-    active: function (todos) {
-      return todos.filter(function (todo) {
-        return !todo.completed
-      })
-    },
-    completed: function (todos) {
-      return todos.filter(function (todo) {
-        return todo.completed
-      })
+export default {
+  name: 'LayoutDefault',
+
+  components: {
+    TodoItem
+  },
+
+  data: function () {
+    return {
+      todos: [],
+      newTodoTitle: '',
+      visibility: 'all',
+      loading: true,
+      error: "",
+      filter: "all"
     }
-  }
+  },
 
-  // app Vue instance
-  const Todos = {
-
-    name: 'Todos',
-
-    props: {
-      activeUser: Object
-    },
-
-    // app initial state
-    data: function() {
-      return {
-        todos: [],
-        newTodo: '',
-        editedTodo: null,
-        visibility: 'all',
-        loading: true,
-        error: null,
-      }
-    },
-
-    mounted() {
-      api.getAll()
+  setup() {
+    return {
+      alert: ref(false),
+    }
+  },
+  mounted() {
+    this.$api.getAll()
         .then(response => {
           this.$log.debug("Data loaded: ", response.data)
           this.todos = response.data
@@ -109,148 +101,107 @@
           this.error = "Failed to load todos"
         })
         .finally(() => this.loading = false)
+  },
+
+  computed: {
+    filteredTodos() {
+      if (this.filter === 'all') return this.todos
+      else if (this.filter === 'complete') return this.todos.filter(todo => todo.completed)
+      else if (this.filter === 'incomplete') return this.todos.filter(todo => !todo.completed)
+      else return []
+    }
+  },
+
+  methods: {
+
+    handleSetFilter(value) {
+      this.filter = value
     },
 
-    // computed properties
-    // http://vuejs.org/guide/computed.html
-    computed: {
-      filteredTodos: function () {
-        return filters[this.visibility](this.todos)
-      },
-      remaining: function () {
-        return filters.active(this.todos).length
-      },
-      allDone: {
-        get: function () {
-          return this.remaining === 0
-        },
-        set: function (value) {
-          this.todos.forEach(function (todo) {
-            todo.completed = value
-          })
-        }
-      },
-      userEmail: function () {
-        return this.activeUser ? this.activeUser.email : ''
-      },
-      inputPlaceholder: function () {
-        return this.activeUser ? this.activeUser.given_name + ', what needs to be done?' : 'What needs to be done?'
-      }
+    handleClickDelete(id) {
+      const todoToRemove = this.todos.find(todo => todo.id === id)
+      this.$api.removeForId(id).then(() => {
+        this.$log.debug("Item removed:", todoToRemove);
+        this.todos.splice(this.todos.indexOf(todoToRemove), 1)
+      }).catch((error) => {
+        this.$log.debug(error);
+        this.error = "Failed to remove todo"
+      });
     },
 
-    filters: {
-      pluralize: function (n) {
-        return n === 1 ? 'item' : 'items'
-      }
-    },
-
-    // methods that implement data logic.
-    // note there's no DOM manipulation here at all.
-
-    methods: {
-
-      addTodo: function () {
-        var value = this.newTodo && this.newTodo.trim()
-        if (!value) {
-          return
-        }
-
-        api.createNew(value, false).then( (response) => {
-          this.$log.debug("New item created:", response);
-          this.todos.push({
-            id: response.data.id,
-            title: value,
-            completed: false
-          })
-        }).catch((error) => {
-          this.$log.debug(error);
-          this.error = "Failed to add todo"
-        });
-
-        this.newTodo = ''
-      },
-
-      setVisibility: function(vis) {
-        this.visibility = vis
-      },
-
-      completeTodo (todo) {
-        api.updateForId(todo.id, todo.title, todo.completed).then((response) => {
-          this.$log.info("Item updated:", response.data);
-        }).catch((error) => {
-          this.$log.debug(error)
-          todo.completed = !todo.completed
-          this.error = "Failed to update todo"
-        });
-      },
-      removeTodo: function (todo) { // notice NOT using "=>" syntax
-        api.removeForId(todo.id).then(() => { // notice AM using "=>" syntax
-          this.$log.debug("Item removed:", todo);
-          this.todos.splice(this.todos.indexOf(todo), 1)
+    handleDeleteCompleted() {
+      const completed = this.todos.filter(todo => todo.completed)
+      Promise.all(completed.map(todoToRemove => {
+        return this.$api.removeForId(todoToRemove.id).then(() => {
+          this.$log.debug("Item removed:", todoToRemove);
+          this.todos.splice(this.todos.indexOf(todoToRemove), 1)
         }).catch((error) => {
           this.$log.debug(error);
           this.error = "Failed to remove todo"
-        });
-      },
-
-      editTodo: function (todo) {
-        this.beforeEditCache = todo.title
-        this.editedTodo = todo
-      },
-
-      doneEdit: function (todo) {
-        if (!this.editedTodo) {
-          return
-        }
-        this.$log.info("Item updated:", todo);
-        api.updateForId(todo.id, todo.title.trim(), todo.completed).then((response) => {
-          this.$log.info("Item updated:", response.data);
-          this.editedTodo = null
-          todo.title = todo.title.trim()
-        }).catch((error) => {
-          this.$log.debug(error)
-          this.cancelEdit(todo)
-          this.error = "Failed to update todo"
-        });
-
-        if (!todo.title) {
-          this.removeTodo(todo)
-        }
-      },
-
-      cancelEdit: function (todo) {
-        this.editedTodo = null
-        todo.title = this.beforeEditCache
-      },
-
-      removeCompleted: function () {
-        this.todos = filters.active(this.todos)
-      },
-
-      handleErrorClick: function () {
-        this.error = null;
-      },
-
+          return error
+        })
+      }))
     },
 
-    // a custom directive to wait for the DOM to be updated
-    // before focusing on the input field.
-    // http://vuejs.org/guide/custom-directive.html
-    directives: {
-      'todo-focus': function (el, binding) {
-        if (binding.value) {
-          el.focus()
-        }
+    handleDoneEditingNewTodo() {
+      const value = this.newTodoTitle && this.newTodoTitle.trim()
+      if (!value) {
+        return
       }
-    }
-  }
+      this.$api.createNew(value, false).then((response) => {
+        this.$log.debug("New item created:", response)
+        this.newTodoTitle = ""
+        this.todos.push({
+          id: response.data.id,
+          title: value,
+          completed: false
+        })
+        this.$refs.newTodoInput.blur()
+      }).catch((error) => {
+        this.$log.debug(error);
+        this.error = "Failed to add todo"
+      });
+    },
+    handleCancelEditingNewTodo() {
+      this.newTodoTitle = ""
+    },
 
-  export default Todos
+    handleSetCompleted(id, value) {
+      let todo = this.todos.find(todo => id === todo.id)
+      todo.completed = value
+    },
 
+    handleSetTitle(id, value) {
+      let todo = this.todos.find(todo => id === todo.id)
+      todo.title = value
+    },
+
+    handleShowError(message) {
+      this.error = message
+    },
+
+    handleErrorClick() {
+      this.error = null;
+    },
+
+  },
+
+}
 </script>
 
 <style>
+#row-container {
+  margin-top: 100px;
+}
 
-    [v-cloak] { display: none; }
+.my-card {
+  min-width: 600px;
+}
 
+.error {
+  color: red;
+  text-align: center;
+  min-width: 600px;
+  margin-top: 10px;
+}
 </style>
