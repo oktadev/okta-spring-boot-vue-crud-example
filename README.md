@@ -1,85 +1,94 @@
-# Simple CRUD with Vue.js and Spring Boot
- 
-This example app shows how to build a basic CRUD app with Spring Boot 2.1, Spring Data, and Vue.js.
+# Build a Simple CRUD App with Spring Boot and Vue.js
 
-Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://developer.okta.com/blog/2018/11/20/build-crud-spring-and-vue) to see how this app was created.
+This example app shows how to build a CRUD app with Spring Boot 2.7, Spring Data, Quasar, and Vue.js.
 
-**Prerequisites:** [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), [Node.js](https://nodejs.org/), and [Yarn](https://yarnpkg.com/). 
+Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://developer.okta.com/blog/2022/08/19/build-crud-spring-and-vue) to see how this app was created.
 
-> [Okta](https://developer.okta.com/) has Authentication and User Management APIs that reduce development time with instant-on, scalable user infrastructure. Okta's intuitive API and expert support make it easy for developers to authenticate, manage and secure users and roles in any application.
+**Prerequisites:**
 
-* [Getting Started](#getting-started)
-* [Links](#links)
-* [Help](#help)
-* [License](#license)
+- [Java 11](https://adoptium.net/)
+- [Okta CLI](https://cli.okta.com/manual/#installation)
+- [Node 16+](https://nodejs.org)
 
-## Getting Started
+You will need a free Okta Developer account if you don't already have one. You will be able to sign up for one in the instructions below using the Okta CLI.
+
+## Clone and Configure the Project
 
 To install this example application, run the following commands:
 
 ```bash
-git clone https://github.com/oktadeveloper/okta-spring-boot-vue-crud-example.git
-cd okta-spring-boot-vue-crud-example
+git clone https://github.com/oktadev/okta-spring-boot-vue-crud-example.git spring-boot-vue
+cd spring-boot-vue
 ```
 
-This will get a copy of the project installed locally. To install all of its dependencies and start each app, follow the instructions below.
+If you do not already have a free Okta developer account, use the CLI to create one (`okta register`). Otherwise, log in (`okta login`).
 
-To run the server, cd into the `server` folder and run:
- 
+Once you are registered and logged in, create a new OIDC application.
+
+```bash
+okta apps create
+```
+
+- The default name is fine.
+
+- Select **2: Single Page App**
+
+- The default redirect URIs are fine.
+
+You need to put the **Issuer** and **Client ID** into two places. The first is to configure the Spring Boot API. The second configures the Vue client. Replace the bracketed values below with the values from the Okta CLI output.
+
+`resource-server/src/main/resources/application.properties`
+
+```properties
+server.port=9000
+okta.oauth2.issuer=https://<your-okta-domain>/oauth2/default
+okta.oauth2.clientId=<your-client-id>
+```
+
+You'll also need to update the `.env` file in the client project.
+
+`client/.env`
+
+```env
+VUE_APP_CLIENT_ID=<your-client-id>
+VUE_APP_ISSUER_URI=<your-issuer-uri>
+VUE_APP_SERVER_URI=http://localhost:9000
+```
+
+## Start the App
+
+To start the API, open a Bash shell and navigate to the `resource-server` subdirectory.
+
 ```bash
 ./gradlew bootRun
 ```
 
-To run the client, cd into the `client` folder and run:
- 
+To start the client, open another Bash shell and navigate to the `client` subdirectory.
+
+Install the dependencies.
+
 ```bash
-yarn install && yarn run serve
+npm install
 ```
 
-### Create a New OIDC App in Okta
+Start the client.
 
-To create a new OIDC app on Okta:
-
-1. Log in to your developer account, navigate to **Applications**, and click on **Add Application**.
-3. Select **Single-Page App** and click **Next**. 
-4. Give the application a name and click **Done**.
-
-#### Server Configuration
-
-Set your domain and copy the `clientId` into `server/src/main/resources/application.yml`. 
-
-**NOTE:** The value of `{yourOktaDomain}` should be something like `dev-123456.oktapreview`. Make sure you don't include `-admin` in the value!
-
-```yaml
-okta:
-  oauth2:
-    client-id: {yourClientId}
-    issuer: https://{yourOktaDomain}/oauth2/default
+```bash
+npm run serve
 ```
 
-#### Client Configuration
-
-For the client, set the `issuer` and copy the `clientId` into `client/src/router.js`.
-
-```js
-Vue.use(Auth, {  
-  issuer: 'https://{yourOktaDomain}/oauth2/default',  
-  client_id: '{yourClientId}',  
-  redirect_uri: window.location.origin + '/implicit/callback',  
-  scope: 'openid profile email'  
-});
-```
+Open a browser to `http://localhost:8080`.
 
 ## Links
 
 This example uses the following open source libraries from Okta:
 
 * [Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)
-* [Okta Vue SDK](https://github.com/okta/okta-oidc-js/tree/master/packages/okta-vue)
+* [Okta Vue SDK](https://github.com/okta/okta-vue)
 
 ## Help
 
-Please post any questions as comments on the [blog post](https://developer.okta.com/blog/2018/11/20/build-crud-spring-and-vue), or visit our [Okta Developer Forums](https://devforum.okta.com/). You can also email developers@okta.com if would like to create a support ticket.
+Please post any questions as comments on the [blog post](https://developer.okta.com/blog/2022/08/19/build-crud-spring-and-vue), or visit our [Okta Developer Forums](https://devforum.okta.com/). 
 
 ## License
 
