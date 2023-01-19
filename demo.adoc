@@ -1,0 +1,19 @@
+:experimental:
+:commandkey: &#8984;
+:toc: macro
+:source-highlighter: highlight.js
+
+= Build a CRUD App with Spring Boot and Vue
+
+Today, I'll show you how to build a microservices and micro frontends architecture with JHipster. You'll build a gateway with Spring Cloud Gateway. Then, you'll create a blog microservice and a store microservice, each with its own database. Each app will also contain a micro frontend.
+
+**Prerequisites**:
+
+- https://adoptium.net/[Java 17]: or use https://sdkman.io/[SDKMAN!] to manage and install multiple versions
+- https://github.com/auth0/auth0-cli[Auth0 CLI]: the Auth0 command-line interface
+- https://httpie.org/doc#installation[HTTPie]: a simple tool for making HTTP requests from a terminal
+- https://nodejs.org[Node 16+]
+- https://cli.vuejs.org/guide/installation.html[Vue CLI]: to bootstrap the Vue client
+
+toc::[]
+
