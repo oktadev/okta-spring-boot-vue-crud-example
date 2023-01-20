@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { navigationGuard } from '@okta/okta-vue'
-import Todos from "@/components/Todos";
-import Home from "@/components/Home";
+import Todos from '@/components/Todos';
+import Home from '@/components/Home';
 import { LoginCallback } from '@okta/okta-vue'
 
 const routes = [

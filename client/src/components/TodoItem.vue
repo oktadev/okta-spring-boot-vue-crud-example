@@ -29,7 +29,7 @@
 import { nextTick } from 'vue'
 
 export default {
-  name: "TodoItem",
+  name: 'TodoItem',
   props: {
     item: Object,
     deleteMe: Function,
@@ -58,18 +58,18 @@ export default {
       this.editing = false
       this.$api.updateForId(this.item.id, this.editingTitle, this.item.completed).then((response) => {
         this.setTitle(this.item.id, this.editingTitle)
-        this.$log.info("Item updated:", response.data);
+        this.$log.info('Item updated:', response.data);
       }).catch((error) => {
-        this.showError("Failed to update todo title")
+        this.showError('Failed to update todo title')
         this.$log.debug(error)
       });
     },
     handleClickSetCompleted(value) {
       this.$api.updateForId(this.item.id, this.item.title, value).then((response) => {
         this.setCompleted(this.item.id, value)
-        this.$log.info("Item updated:", response.data);
+        this.$log.info('Item updated:', response.data);
       }).catch((error) => {
-        this.showError("Failed to update todo completed status")
+        this.showError('Failed to update todo completed status')
         this.$log.debug(error)
       });
     },

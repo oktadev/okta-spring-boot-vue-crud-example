@@ -18,7 +18,7 @@
 
 <script>
 export default {
-  name: "home-component",
+  name: 'home-component',
   data: function () {
     return {
       claims: ''
@@ -34,7 +34,7 @@ export default {
       }
     },
     todo() {
-      this.$router.push("/todos")
+      this.$router.push('/todos')
     },
     async login() {
       await this.$auth.signInWithRedirect({ originalUri: '/todos' })

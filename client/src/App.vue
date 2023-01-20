@@ -32,7 +32,7 @@ export default {
   },
   watch: {
     'authState.isAuthenticated'() {
-      this.$log.debug(("watch triggered!"))
+      this.$log.debug(('watch triggered!'))
       this.updateClaims()
     }
   },
