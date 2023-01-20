@@ -95,7 +95,7 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>
 ./gradlew bootRun
 ----
 
-. Create a `SecurityConfiguration` class to configure Spring Security.
+. Create a `SecurityConfiguration` class to configure Spring Security. [`sbv-security-config`]
 +
 [source,java]
 ----
@@ -144,7 +144,7 @@ public class SecurityConfiguration {
 }
 ----
 
-. Create an `AudienceValidator` in the same package to validate JWTs.
+. Create an `AudienceValidator` in the same package to validate JWTs. [`sbv-validator`]
 +
 [source,java]
 ----
@@ -173,7 +173,7 @@ class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
-. Replace the `DemoApplication.java` file with the following.
+. Replace the `DemoApplication.java` file with the following. [`sbv-demo`]
 +
 [source,java]
 ----
@@ -246,7 +246,7 @@ public class DemoApplication {
 }
 ----
 
-. Create a `Todo.java` class to hold data.
+. Create a `Todo.java` class to hold data. [`sbv-todo`]
 +
 [source,java]
 ----
@@ -436,7 +436,7 @@ npm i axios@1.2.3 vuejs3-logger@1.0.0 vue-router@4.1.6 @auth0/auth0-vue@2
 - `vue-router`: the standard for routing between pages in Vue
 - `@auth0/auth0-vue`: the Auth0 SDK for Vue
 
-. Update `src/main.js` to the following. This configures and installs the Auth0 plugin for Vue.
+. Update `src/main.js` to the following. This configures and installs the Auth0 plugin for Vue. [`sbv-main`]
 +
 [source,js]
 ----
@@ -480,10 +480,9 @@ app.config.globalProperties.$api = createApi(app.config.globalProperties.$auth0)
 app.mount('#app')
 ----
 
-. Replace `App.vue` with the following.
-
+. Replace `App.vue` with the following. [`sbv-app`]
++
 [source,js]
-.`src/App.vue`
 ----
 <template>
   <q-layout view="hHh lpR fFf">
@@ -533,10 +532,9 @@ export default {
 </script>
 ----
 
-. Create a new file to encapsulate the resource server access logic.
+. Create a new file to encapsulate the resource server access logic. [`sbv-api`]
 +
 [source,js]
-.`src/Api.js`
 ----
 import axios from 'axios'
 
@@ -588,10 +586,9 @@ const createApi = (auth) => {
 export default createApi
 ----
 
-. Create the router file.
-
+. Create the router file at `src/router/index.js`. [`sbv-router`]
++
 [source,js]
-.`src/router/index.js`
 ----
 import { createRouter, createWebHistory } from 'vue-router'
 import Todos from '@/components/Todos';
@@ -619,8 +616,8 @@ const router = createRouter({
 export default router
 ----
 
-. Create a `Home` component.
-
+. Create a `Home` component. [`sbv-home`]
++
 [source,vue]
 .`src/components/Home.vue`
 ----
@@ -671,8 +668,8 @@ export default {
 </script>
 ----
 
-. Create the `TodoItem` component.
-
+. Create the `TodoItem` component. [`sbv-todo-item`]
++
 [source,vue]
 .`src/components/TodoItem.vue`
 ----
@@ -783,8 +780,8 @@ input.list-item-input {
 </style>
 ----
 
-. Create the `Todos` component.
-
+. Create the `Todos` component. [`sbv-todos`]
++
 [source,vue]
 .`src/components/Todos.vue`
 ----
@@ -1044,11 +1041,7 @@ http :9000/todos
 http :9000/todos "Authorization: Bearer $TOKEN"
 ----
 
-== Do more with Spring Boot, Vue, and Okta
-
-You built a Spring Boot resource server backend and a Vue frontend in this tutorial. The Vue client used the latest Vue 3 version with the Quasar framework. The app included full CRUD (create, read, update, and delete) capabilities. It was all secured first using Okta, and then, a second time, via Auth0.
-
-You can find the source code for this example on GitHub in the https://github.com/oktadev/okta-spring-boot-vue-crud-example[@oktadev/okta-spring-boot-vue-crud-example] repository.
+== Giddyup with Spring Boot, Vue, and Auth0!
 
 I hope you enjoyed this demo, and it helped you learn how you can integrate Vue with Spring Boot.
 
