@@ -8,7 +8,7 @@ const instance = axios.create({
 const createApi = (auth) => {
 
   instance.interceptors.request.use(async function (config) {
-    let accessToken = auth.getAccessToken()
+    const accessToken = await auth.getAccessTokenSilently();
     config.headers = {
       Authorization: `Bearer ${accessToken}`
     }

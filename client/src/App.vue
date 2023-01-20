@@ -9,8 +9,8 @@
           </q-avatar>
           Todo App
         </q-toolbar-title>
-        {{ this.claims && this.claims.email ? claims.email : '' }}
-        <q-btn flat round dense icon="logout" v-if='authState && authState.isAuthenticated' @click="logout"/>
+        {{ isAuthenticated ? user.email : "" }}
+        <q-btn flat round dense icon="logout" v-if='isAuthenticated' @click="logout"/>
         <q-btn flat round dense icon="account_circle" v-else @click="login"/>
       </q-toolbar>
     </q-header>
@@ -23,34 +23,24 @@
 </template>
 
 <script>
+
+import { useAuth0 } from '@auth0/auth0-vue';
+
 export default {
-  name: 'LayoutDefault',
-  data: function () {
+  setup() {
+
+    const { loginWithRedirect, user, isAuthenticated, logout } = useAuth0();
+
     return {
-      claims: null
-    }
-  },
-  watch: {
-    'authState.isAuthenticated'() {
-      this.$log.debug(('watch triggered!'))
-      this.updateClaims()
-    }
-  },
-  created() {
-    this.updateClaims()
-  },
-  methods: {
-    async updateClaims() {
-      if (this.authState && this.authState.isAuthenticated) {
-        this.claims = await this.$auth.getUser()
-      }
-    },
-    async login() {
-      await this.$auth.signInWithRedirect({ originalUri: '/todos' })
-    },
-    async logout() {
-      await this.$auth.signOut()
-    }
-  },
+      login: () => {
+        loginWithRedirect();
+      },
+      logout: () => {
+        logout({ returnTo: window.location.origin });
+      },
+      user,
+      isAuthenticated
+    };
+  }
 }
 </script>
