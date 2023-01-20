@@ -2,9 +2,9 @@ package com.example.demo;
 
 import lombok.*;
 
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Entity;
 
 @Entity
 @Data
