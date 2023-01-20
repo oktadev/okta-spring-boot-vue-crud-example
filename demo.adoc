@@ -275,10 +275,9 @@ public class Todo {
 }
 ----
 
-. Create a repository to persist the data model.
+. Create a `TodoRepository` interface to persist the data model.
 +
 [source,java]
-.`src/main/java/com/example/demo/TodoRepository.java`
 ----
 package com.example.demo;
 
@@ -415,7 +414,7 @@ cd client
 vue add quasar
 ----
 +
-You can just accept the defaults. For me, they were the following.
+You can just accept the defaults.
 
 - Allow Quasar to replace `App.vue`, `About.vue`, `Home.vue` and (if available) `router.js`? **Yes**
 - Pick your favorite CSS preprocessor: **Sass with indented syntax**
@@ -430,13 +429,8 @@ You can just accept the defaults. For me, they were the following.
 ----
 npm i axios@1.2.3 vuejs3-logger@1.0.0 vue-router@4.1.6 @auth0/auth0-vue@2
 ----
-+
-- `axios`: an HTTP client request library
-- `vuejs3-logger`: a logging library
-- `vue-router`: the standard for routing between pages in Vue
-- `@auth0/auth0-vue`: the Auth0 SDK for Vue
 
-. Update `src/main.js` to the following. This configures and installs the Auth0 plugin for Vue. [`sbv-main`]
+. Update `src/main.js`. This configures and installs the Auth0 plugin for Vue. [`sbv-main`]
 +
 [source,js]
 ----
@@ -586,7 +580,7 @@ const createApi = (auth) => {
 export default createApi
 ----
 
-. Create the router file at `src/router/index.js`. [`sbv-router`]
+. Create a router file at `src/router/index.js`. [`sbv-router`]
 +
 [source,js]
 ----
@@ -616,10 +610,9 @@ const router = createRouter({
 export default router
 ----
 
-. Create a `Home` component. [`sbv-home`]
+. Create a `src/components/Home.vue` component. [`sbv-home`]
 +
 [source,vue]
-.`src/components/Home.vue`
 ----
 <template>
   <div class="column justify-center items-center" id="row-container">
@@ -668,10 +661,9 @@ export default {
 </script>
 ----
 
-. Create the `TodoItem` component. [`sbv-todo-item`]
+. Create a `TodoItem` component. [`sbv-todo-item`]
 +
 [source,vue]
-.`src/components/TodoItem.vue`
 ----
 <template>
   <q-item-section avatar class="check-icon" v-if="this.item.completed">
@@ -780,10 +772,9 @@ input.list-item-input {
 </style>
 ----
 
-. Create the `Todos` component. [`sbv-todos`]
+. Create a `Todos` component. [`sbv-todos`]
 +
 [source,vue]
-.`src/components/Todos.vue`
 ----
 <template>
   <div class="column justify-center items-center" id="row-container">
