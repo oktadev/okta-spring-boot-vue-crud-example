@@ -1,57 +1,58 @@
 # Build a Simple CRUD App with Spring Boot and Vue.js
 
-This example app shows how to build a CRUD app with Spring Boot 2.7, Spring Data, Quasar, and Vue.js.
+This example app shows how to build a CRUD app with Spring Boot 3.0, Spring Data, Quasar, and Vue.js.
 
 Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://developer.okta.com/blog/2022/08/19/build-crud-spring-and-vue) to see how this app was created.
 
 **Prerequisites:**
 
-- [Java 11](https://adoptium.net/)
-- [Okta CLI](https://cli.okta.com/manual/#installation)
+- [Java 17](https://adoptium.net/)
+- [Auth0 CLI](https://github.com/auth0/auth0-cli#-installation)
 - [Node 16+](https://nodejs.org)
 
-You will need a free Okta Developer account if you don't already have one. You will be able to sign up for one in the instructions below using the Okta CLI.
+You will need an Auth0 account if you don't already have one. Sign up for a free account at [auth0.com/signup](https://auth0.com/signup).
 
 ## Clone and Configure the Project
 
 To install this example application, run the following commands:
 
 ```bash
-git clone https://github.com/oktadev/okta-spring-boot-vue-crud-example.git spring-boot-vue
+git clone -b auth0 https://github.com/oktadev/okta-spring-boot-vue-crud-example.git spring-boot-vue
 cd spring-boot-vue
 ```
 
-If you do not already have a free Okta developer account, use the CLI to create one (`okta register`). Otherwise, log in (`okta login`).
-
-Once you are registered and logged in, create a new OIDC application.
+Create a test Auth0 API. The Auth0 API is what exposes identity functionality for all authentication and authorization protocols, such as OpenID Connect and OAuth.
 
 ```bash
-okta apps create
+auth0 apis create -n myapi --identifier http://my-api
 ```
 
-- The default name is fine.
+Press enter three times to accept the default values for scopes, token lifetime, and allow offline access.
 
-- Select **2: Single Page App**
-
-- The default redirect URIs are fine.
-
-You need to put the **Issuer** and **Client ID** into two places. The first is to configure the Spring Boot API. The second configures the Vue client. Replace the bracketed values below with the values from the Okta CLI output.
-
-`resource-server/src/main/resources/application.properties`
+Update `resource-server/src/main/resources/application.properties` with your Auth0 domain.
 
 ```properties
 server.port=9000
-okta.oauth2.issuer=https://<your-okta-domain>/oauth2/default
-okta.oauth2.clientId=<your-client-id>
+auth0.audience=http://my-api
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>/
 ```
 
-You'll also need to update the `.env` file in the client project.
+Create a new OIDC app on Auth0:
 
-`client/.env`
+```bash
+auth0 apps create
+```
+
+- **Name**: `vue-spring-boot`
+- **Type**: Single Page Web Application
+- **All the URLs**: `http://localhost:8080`
+
+Update the `client/.env` file. Fill in the OIDC Client ID and Auth0 domain.
 
 ```env
 VUE_APP_CLIENT_ID=<your-client-id>
-VUE_APP_ISSUER_URI=<your-issuer-uri>
+VUE_APP_AUTH0_DOMAIN=<your-auth0-domain>
+VUE_APP_AUTH0_AUDIENCE=http://my-api
 VUE_APP_SERVER_URI=http://localhost:9000
 ```
 
@@ -83,8 +84,7 @@ Open a browser to `http://localhost:8080`.
 
 This example uses the following open source libraries from Okta:
 
-* [Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)
-* [Okta Vue SDK](https://github.com/okta/okta-vue)
+* [Auth0 Vue SDK](https://github.com/auth0/auth0-vue)
 
 ## Help
 
