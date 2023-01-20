@@ -6,7 +6,7 @@ Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://develo
 
 **Prerequisites:**
 
-- [Java 11](https://adoptium.net/)
+- [Java 17](https://adoptium.net/)
 - [Okta CLI](https://cli.okta.com/manual/#installation)
 - [Node 16+](https://nodejs.org)
 
