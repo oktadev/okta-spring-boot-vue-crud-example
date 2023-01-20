@@ -1,6 +1,6 @@
 # Build a Simple CRUD App with Spring Boot and Vue.js
 
-This example app shows how to build a CRUD app with Spring Boot 2.7, Spring Data, Quasar, and Vue.js.
+This example app shows how to build a CRUD app with Spring Boot 3.0, Spring Data, Quasar, and Vue.js.
 
 Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://developer.okta.com/blog/2022/08/19/build-crud-spring-and-vue) to see how this app was created.
 
@@ -20,6 +20,8 @@ To install this example application, run the following commands:
 git clone https://github.com/oktadev/okta-spring-boot-vue-crud-example.git spring-boot-vue
 cd spring-boot-vue
 ```
+
+**TIP**: If you'd like to use Auth0, check out the `auth0` branch (`git checkout auth0`) and follow the instructions in its `README.md`. 
 
 If you do not already have a free Okta developer account, use the CLI to create one (`okta register`). Otherwise, log in (`okta login`).
 
