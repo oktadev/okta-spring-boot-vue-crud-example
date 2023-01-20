@@ -21,7 +21,7 @@ git clone https://github.com/oktadev/okta-spring-boot-vue-crud-example.git sprin
 cd spring-boot-vue
 ```
 
-**TIP**: If you'd like to use Auth0, check out the `auth0` branch (`git checkout auth0`) and follow the instructions in its `README.md`. 
+**TIP**: If you'd like to use Auth0, check out the `auth0` branch (`git checkout auth0`) and follow the instructions in its [`README.md`](https://github.com/oktadev/okta-spring-boot-vue-crud-example/blob/auth0/README.md). 
 
 If you do not already have a free Okta developer account, use the CLI to create one (`okta register`). Otherwise, log in (`okta login`).
 
