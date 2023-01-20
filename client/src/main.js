@@ -10,7 +10,7 @@ import {OktaAuth} from '@okta/okta-auth-js'
 import OktaVue from '@okta/okta-vue'
 
 if (process.env.VUE_APP_ISSUER_URI == null || process.env.VUE_APP_CLIENT_ID == null || process.env.VUE_APP_SERVER_URI == null) {
-  throw "Please define VUE_APP_ISSUER_URI, VUE_APP_CLIENT_ID, and VUE_APP_SERVER_URI in .env file"
+  throw 'Please define VUE_APP_ISSUER_URI, VUE_APP_CLIENT_ID, and VUE_APP_SERVER_URI in .env file'
 }
 
 const oktaAuth = new OktaAuth({

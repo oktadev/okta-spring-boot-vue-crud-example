@@ -64,24 +64,23 @@
 
 <script>
 
-import TodoItem from "@/components/TodoItem";
+import TodoItem from '@/components/TodoItem';
 import { ref } from 'vue'
 
 export default {
   name: 'LayoutDefault',
-
   components: {
     TodoItem
   },
 
-  data: function () {
+  data: function() {
     return {
       todos: [],
       newTodoTitle: '',
       visibility: 'all',
       loading: true,
-      error: "",
-      filter: "all"
+      error: '',
+      filter: 'all'
     }
   },
 
@@ -93,12 +92,12 @@ export default {
   mounted() {
     this.$api.getAll()
         .then(response => {
-          this.$log.debug("Data loaded: ", response.data)
+          this.$log.debug('Data loaded: ', response.data)
           this.todos = response.data
         })
         .catch(error => {
           this.$log.debug(error)
-          this.error = "Failed to load todos"
+          this.error = 'Failed to load todos'
         })
         .finally(() => this.loading = false)
   },
@@ -113,7 +112,6 @@ export default {
   },
 
   methods: {
-
     handleSetFilter(value) {
       this.filter = value
     },
@@ -121,11 +119,11 @@ export default {
     handleClickDelete(id) {
       const todoToRemove = this.todos.find(todo => todo.id === id)
       this.$api.removeForId(id).then(() => {
-        this.$log.debug("Item removed:", todoToRemove);
+        this.$log.debug('Item removed:', todoToRemove);
         this.todos.splice(this.todos.indexOf(todoToRemove), 1)
       }).catch((error) => {
         this.$log.debug(error);
-        this.error = "Failed to remove todo"
+        this.error = 'Failed to remove todo'
       });
     },
 
@@ -133,11 +131,11 @@ export default {
       const completed = this.todos.filter(todo => todo.completed)
       Promise.all(completed.map(todoToRemove => {
         return this.$api.removeForId(todoToRemove.id).then(() => {
-          this.$log.debug("Item removed:", todoToRemove);
+          this.$log.debug('Item removed:', todoToRemove);
           this.todos.splice(this.todos.indexOf(todoToRemove), 1)
         }).catch((error) => {
           this.$log.debug(error);
-          this.error = "Failed to remove todo"
+          this.error = 'Failed to remove todo'
           return error
         })
       }))
@@ -149,8 +147,8 @@ export default {
         return
       }
       this.$api.createNew(value, false).then((response) => {
-        this.$log.debug("New item created:", response)
-        this.newTodoTitle = ""
+        this.$log.debug('New item created:', response)
+        this.newTodoTitle = ''
         this.todos.push({
           id: response.data.id,
           title: value,
@@ -159,11 +157,11 @@ export default {
         this.$refs.newTodoInput.blur()
       }).catch((error) => {
         this.$log.debug(error);
-        this.error = "Failed to add todo"
+        this.error = 'Failed to add todo'
       });
     },
     handleCancelEditingNewTodo() {
-      this.newTodoTitle = ""
+      this.newTodoTitle = ''
     },
 
     handleSetCompleted(id, value) {
@@ -183,9 +181,7 @@ export default {
     handleErrorClick() {
       this.error = null;
     },
-
   },
-
 }
 </script>
 
