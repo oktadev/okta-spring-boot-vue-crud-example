@@ -5,95 +5,42 @@
 
 = Build a CRUD App with Spring Boot and Vue
 
-Today, I'll show you how to build a microservices and micro frontends architecture with JHipster. You'll build a gateway with Spring Cloud Gateway. Then, you'll create a blog microservice and a store microservice, each with its own database. Each app will also contain a micro frontend.
+Today, I'll show you how to build Spring Boot and Vue CRUD app and secure it all with Auth0.
+
+The Vue frontend client will use the Quasar framework for the presentation. OAuth 2.0 and OpenID Connect (OIDC) will secure the Spring Boot API and the Vue client with Auth0 as the security provider.
 
 **Prerequisites**:
 
-- https://adoptium.net/[Java 17]: or use https://sdkman.io/[SDKMAN!] to manage and install multiple versions
+- https://adoptium.net/[Java 17]: I recommend using https://sdkman.io/[SDKMAN!] to manage and install multiple versions
 - https://github.com/auth0/auth0-cli[Auth0 CLI]: the Auth0 command-line interface
 - https://httpie.org/doc#installation[HTTPie]: a simple tool for making HTTP requests from a terminal
 - https://nodejs.org[Node 16+]
-- https://cli.vuejs.org/guide/installation.html[Vue CLI]: to bootstrap the Vue client
+- https://cli.vuejs.org/guide/installation.html[Vue CLI]: to bootstrap the Vue client\
 
-toc::[]
-
-You will use Vue and Spring Boot to build a todo list web application. The application will include CRUD abilities, meaning that you can **c**reate, **r**ead, **u**pdate, and **d**elete the todo items on the Spring Boot API via the client. The Vue frontend client will use the Quasar framework for the presentation. OAuth 2.0 and OpenID Connect (OIDC) will secure the Spring Boot API and the Vue client, initially by using Okta as the security provider. Then, at the end of the tutorial, you will also see how to use Auth0 as the security provider.
-
-{% img blog/spring-boot-vue3/spring-and-vue.png alt:"Spring Boot, Vue, and Okta logos" width:"500" %}{: .center-image }
-
-This project has two major parts:
-
-- Spring Boot API
-- Vue client
-
-The Spring Boot app will include an H2 in-memory database and will use Spring Data JPA to map our todo data model to a database table for persistence. As you'll see, the server will leverage Spring Boot's ability to quickly expose data via a REST API with minimal configuration.
-
-The client will use https://vuejs.org/[Vue 3] and the Quasar framework. https://quasar.dev/[The Quasar framework] provides components and layout tools to help build Vue applications quickly with a consistent, high-quality user interface.
-
-Before you dig into the tutorial, I want to quickly introduce the technologies for those that might be unfamiliar. Feel free to skip down to the prerequisites section if you're already familiar with Vue and Spring Boot.
-
-{% include toc.md %}
-
-== What is Vue.js?
-
-Vue is a JavaScript view library, like React and Angular. It's designed to be incrementally adoptable, and the core library focuses solely on the view layer.
-
-In my experience, Vue.js is a great alternative to React. I learned React first and came to use Vue later. Like React, Vue uses a virtual DOM, provides reactive and composable view components, and enforces a strict one-way parent-child relationship when defining properties and state. This means that it is performant and avoids many confusing state relationships that can occur without one-way data binding.
-
-However, unlike React, Vue uses templates instead of JSX (a potentially welcome and more immediately accessible option). Vue gives you component-scoped CSS using style tags in single-file components. In practice, this difference is pretty significant because, in React, the JSX and CSS-like syntax are close enough to HTML and CSS to be confusing but not the same, which creates problems initially. (Ever gone from a language that doesn't require semicolons back to one that does? It's something like that.)
-
-I find Vue to be a simpler, cleaner implementation. React requires a deep dive. You gotta take the red pill and go all the way. It's a super powerful system, but you have to be all in. Vue is a little friendlier and a little easier to get started.
-
-== Introducing the Quasar Framework
-
-The https://quasar.dev/[Quasar Framework] builds on top of Vue to add a cross-platform component library and grid layout system. It also provides many tools for deploying Vue-based applications to basically any platform you can think of, from web single-page and progressive web apps to mobile apps and Electron-based desktop apps. In this tutorial, you'll only be using the layout and component library features. Still, Quasar's big push is to allow developers to write a single web application and deploy it to any platform with a consistent look with minimal changes.
-
-== About Spring Boot
-
-The server technology you're going to use is Spring Boot. Pure, unadulterated Spring (pre-Spring Boot) is a bit of a behemoth: super powerful but potentially time-sucking and frustrating. I'm pretty sure the whole computer conference phenomena came about so that people could learn and understand old-school Spring XML files. It certainly drove large sections of the computer publishing empires.
-
-Spring Boot was Spring's answer to this complexity (and to frameworks like Ruby on Rails and Grails). They did a great job of distilling down all the power of Spring into a simple, quick, easy-to-use web framework. You can have a fully functioning resource server with a ridiculously small number of lines of code and a few annotations.
-
-Plus, when you're ready, you have all the power of Spring under the hood, just waiting.
-
-**Prerequisites:**
-
-Before you start, please make sure you have the following prerequisites installed (or install them now).
-
-- https://adoptium.net/[Java 17]: or use https://sdkman.io/[SDKMAN!] to manage and install multiple versions
-- https://cli.okta.com/manual/#installation[Okta CLI]: the Okta command-line interface
-- https://httpie.org/doc=installation[HTTPie]: a simple tool for making HTTP requests from a Bash shell
-- https://nodejs.org[Node 16+]
-- https://cli.vuejs.org/guide/installation.html[Vue CLI]: you'll use this to bootstrap the Vue client
-
-You will need a free Okta Developer account if you don't already have one. But you can wait until later in the tutorial and use the Okta CLI to log in or register for a new account.
-
-Instead of building the project, you can also https://github.com/oktadev/okta-spring-boot-vue-crud-example[clone the repo] and follow the instructions there to configure it.
+**Fast Track**: https://github.com/oktadev/okta-spring-boot-vue-crud-example[Clone the repo] and follow the instructions in its `README` to configure everything.
 
 == Create an OpenID Connect app
 
-Open a Bash shell. Create a parent directory for the project. Eventually, this will include both the resource server and client projects.
-
+. Open a terminal and create a parent directory for your project.
++
 [source,shell]
 ----
-mkdir spring-boot-vue-crud
-cd spring-boot-vue-crud
+take spring-boot-vue-crud
 ----
 
-{% include setup/cli.md type="spa" framework="Vue" loginRedirectUri="http://localhost:8080/callback" %}
+// todo: auth0 app with CLI
+// {% include setup/cli.md type="spa" framework="Vue" loginRedirectUri="http://localhost:8080/callback" %}
 
-Copy the client ID and issuer URI somewhere safe. You'll need them for both the client and resource server applications.
+. Copy the client ID and issuer URI somewhere safe. You'll need them for both the client and resource server applications.
 
 == Bootstrap a Spring Boot app using Spring Initializr
 
-You're going to use start.spring.io/[the Spring Initializr] to create a starter project for the resource server. You can look at the project website if you want, but here you'll use the REST API to download a pre-configured starter.
-
-The following command will download the starter project and un-tar it to a new directory named `resource-server`.
-
+. Use start.spring.io/[the Spring Initializr] to create a starter project for the resource server.
++
 [source,shell]
 ----
 curl https://start.spring.io/starter.tgz \
-  -d bootVersion=3.0.0 \
+  -d bootVersion=3.0.2 \
   -d javaVersion=17 \
   -d dependencies=web,data-rest,lombok,data-jpa,h2,okta \
   -d type=gradle-project \
@@ -101,43 +48,27 @@ curl https://start.spring.io/starter.tgz \
 | tar -xzvf - && cd resource-server
 ----
 
-The dependencies you're including are:
-
-- `web`: https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/mvc.html[Spring Web MVC], adds basic HTTP REST functionality
-- `data-jpa`: https://spring.io/projects/spring-data-jpa[Spring Data JPA], makes it easy to create JPA-based repositories
-- `data-rest`: https://spring.io/projects/spring-data-rest[Spring Data REST], exposes Spring Data repositories as resource servers
-- `h2`: the https://www.h2database.com/html/main.html[H2] in-memory database used for demonstration purposes
-- `lombok`: https://projectlombok.org/[Project Lombok], adds some helpful annotations that eliminate the need to write a lot of getters and setters
-- `okta`: https://github.com/okta/okta-spring-boot[Okta Spring Boot Starter] that helps OAuth 2.0 and OIDC configuration
-
-Project Lombok saves a lot of clutter and ceremony code. However, if you're using an IDE, **you'll need to install a plugin for Lombok**. See the https://projectlombok.org/[project's installation docs] for more information.
-
 == Configure Spring Security
 
-Open the application properties file and update it. You're changing the server port so it doesn't conflict with the default Vue local server (which also defaults `8080`).
-
-`src/main/resources/application.properties`
-
+. Open the application properties file and update it. You're changing the server port so it doesn't conflict with the default Vue local server (which also defaults `8080`).
++
 [source,properties]
+.`src/main/resources/application.properties`
 ----
 server.port=9000
 okta.oauth2.issuer=<your-issuer-uri>
 okta.oauth2.clientId=<your-client-id>
 ----
 
-**You need to replace the two bracketed values** with the values you generated above for the OIDC app using the Okta CLI.
-
-You can run the bootstrapped project right now and see if it starts. It should start but won't do much.
-
+. You can run the bootstrapped project right now and see if it starts. It should start but won't do much.
++
 [source,shell]
 ----
 ./gradlew bootRun
 ----
 
-Create a `SecurityConfiguration` class to configure Spring Security. The class below configures web security to allow all requests, effectively bypassing security. This is just so you can test the resource server initially. You'll enable security shortly.
-
-`src/main/java/com/example/demo/SecurityConfiguration.java`
-
+. Create a `SecurityConfiguration` class to configure Spring Security. The class below configures web security to allow all requests, effectively bypassing security.
++
 [source,java]
 ----
 package com.example.demo;
@@ -152,7 +83,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.authorizeHttpRequests()
             .anyRequest().permitAll();
         return http.build();
     }
@@ -160,10 +91,8 @@ public class SecurityConfiguration {
 }
 ----
 
-Replace the `DemoApplication.java` file with the following.
-
-`src/main/java/com/example/demo/DemoApplication.java`
-
+. Replace the `DemoApplication.java` file with the following.
++
 [source,java]
 ----
 package com.example.demo;
@@ -226,7 +155,7 @@ public class DemoApplication {
 
     // Expose IDs of Todo items
     @Component
-    class RestRespositoryConfigurator implements RepositoryRestConfigurer {
+    class RestRepositoryConfigurator implements RepositoryRestConfigurer {
         public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
             config.exposeIdsFor(Todo.class);
         }
@@ -234,19 +163,17 @@ public class DemoApplication {
 
 }
 ----
-
++
 This demo application does three things that are helpful for demonstration purposes. First, it loads some test todo items into the repository.
-
++
 Second, it configures the REST repository to expose IDs for the todo items.
-
++
 Third, it defines a filter to allow cross-origin requests from `http://localhost:8080`. This is necessary so that the Vue application, which is loaded from `http://localhost:9000` via the local test server, can load data from the Spring Boot resource server at `http://localhost:8080`.
-
++
 For more info on CORS (cross-origin resource sharing), take a look at https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS[the Mozilla docs].
 
-Now, create the data model for the todo items.
-
-`src/main/java/com/example/demo/Todo.java`
-
+. Create the data model for the todo items. Create a `Todo.java` file in the `src/main/java/com/example/demo` directory.
++
 [source,java]
 ----
 package com.example.demo;
@@ -273,16 +200,13 @@ public class Todo {
 
 }
 ----
-
++
 Notice the use of the Lombok annotations (`@Entity`, `@Data`, and `@NoArgsConstructor`) to keep the code simple and clean.
 
-The todo items have two fields: a title string and a completed boolean. The fields are annotated with Spring Data JPA annotations that allow the Java class to be mapped to a database table for persistence.
-
-Create a repository to persist the data model.
-
-`src/main/java/com/example/demo/TodoRepository.java`
-
+. Create a repository to persist the data model.
++
 [source,java]
+.`src/main/java/com/example/demo/TodoRepository.java`
 ----
 package com.example.demo;
 
@@ -292,27 +216,27 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource
 interface TodoRepository extends JpaRepository<Todo, Long> {}
 ----
-
++
 This is a Spring Data JpaRepository that can persist the data model you just defined. Because it is annotated with `@RepositoryRestResource` (and because the `data-rest` dependency was included), this repository will be automatically exposed as a web resource.
 
 == Test your Vue and Spring Boot app
 
-Run the app using the following command from the `resource-server` subdirectory.
-
+. Run the app using Gradle from the `resource-server` subdirectory.
++
 [source,shell]
 ----
 ./gradlew bootRun
 ----
 
-Open a new Bash shell and use HTTPie to test the resource server.
-
+. Open a new shell and use HTTPie to test the resource server.
++
 [source,shell]
 ----
 http :9000/todos
 ----
 
-You should see a response like the following:
-
+. You should see a response like the following:
++
 [source,shell]
 ----
 HTTP/1.1 200
@@ -354,19 +278,18 @@ HTTP/1.1 200
 }
 ----
 
-Stop the resource server using `CTRL + C`.
+. Stop the resource server using `CTRL + C`.
 
 == Secure your Spring Boot API
 
-Edit the `SecurityConfiguration.java` file and change the filter chain's bean definition to enable a resource server.
-
-`src/main/java/com/example/demo/OAuth2ResourceServerSecurityConfiguration.java`
-
+. Edit the `SecurityConfiguration.java` file and change the filter chain's bean definition to enable a resource server.
++
 [source,java]
+.`src/main/java/com/example/demo/SecurityConfiguration.java`
 ----
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.authorizeRequests()
+    http.authorizeHttpRequests()
         .anyRequest().authenticated()
         .and()
         .oauth2ResourceServer().jwt();
@@ -374,81 +297,80 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-This configuration requires JWT auth on all requests.
-
-Restart the server. Use `CTRL + C` to stop it if it's running.
-
+. Restart the server. Use `CTRL + C` to stop it if it's running.
++
 [source,shell]
 ----
 ./gradlew bootRun
 ----
 
-Use HTTPie again to try and request the todo items.
-
+. Use HTTPie again to try and request the todo items.
++
 [source,shell]
 ----
 http :9000/todos
 ----
-
++
 You will get an error.
-
++
 [source,shell]
 ----
 HTTP/1.1 401
 ...
 
 401 Unauthorized
-
 ----
-
++
 The resource server is finished. The next step is to create the Vue client.
 
 == Create a Vue JavaScript client
 
-Use the Vue CLI to create a new application **from the project's root directory** and navigate into the newly created `client` directory. Install the Vue CLI if you don't have it installed with `npm i -g @vue/cli`.
+Use the Vue CLI to create a new application **from the project's root directory** and navigate into the newly created `client` directory.
 
+. Install the Vue CLI if you don't have it installed with `npm i -g @vue/cli`.
++
 [source,shell]
 ----
 vue create client
 ----
-
++
 Pick **Default ([Vue 3] babel, eslint)** when prompted. Wait for it to finish.
-
++
 [source,shell]
 ----
 cd client
 ----
 
-Add the Quasar framework.
-
+. Add the Quasar framework.
++
 [source,shell]
 ----
 vue add quasar
 ----
-
++
 You can just accept the defaults. For me, they were the following.
 
-- Allow Quasar to replace App.vue, About.vue, Home.vue and (if available) router.js? **Yes**
+- Allow Quasar to replace `App.vue`, `About.vue`, `Home.vue` and (if available) `router.js`? **Yes**
 - Pick your favorite CSS preprocessor: **Sass with indented syntax**
 - Choose Quasar Icon Set: **Material Icons (recommended)**
 - Default Quasar language pack: **en-US**
 - Use RTL support? **No**
 - Select features: **Enter** to select none
 
-Add additional dependencies for HTTP requests, logging, routing, and authentication.
-
+. Add additional dependencies for HTTP requests, logging, routing, and authentication.
++
 [source,shell]
 ----
-npm i axios@0.27.2 vuejs3-logger@1.0.0 vue-router@4.1.3 @okta/okta-vue@5.3.0
+npm i axios@1.2.3 vuejs3-logger@1.0.0 vue-router@4.1.6 @auth0/auth0-vue@2.0.0
 ----
-
++
 - `axios`: an HTTP client request library
 - `vuejs3-logger`: a logging library
 - `vue-router`: the standard for routing between pages in Vue
-- `okta/okta-vue`: the Okta helper for Vue
+- `@auth0/auth0-vue`: the Auth0 SDK for Vue
 
-To learn more about how Okta integrates with Vue, look at https://github.com/okta/okta-vue[the GitHub page] for the `okta/okta-vue` project. More resources and example applications are listed in https://developer.okta.com/code/vue/[the Okta docs for Vue].
-
+To learn more about how Auth0 integrates with Vue, look at https://github.com/auth0/auth0-vue[the GitHub page] for the `auth0/auth0-vue` project.
+////
 Replace `main.js` with the following. Look at the `OktaAuth` configuration object. Notice the client ID and issuer URI are pulled from a `.env` file.
 
 `src/main.js`
@@ -497,30 +419,24 @@ app.config.globalProperties.$api = createApi(app.config.globalProperties.$auth)
 
 app.mount('#app')
 ----
+////
 
-Stated very briefly, the file above creates the main Vue app and configures it to use the dependencies you added: Quasar, VueLogger, OktaVue, and the router. It also creates the API class that handles the requests to the resource server and passes it the `$auth` object it needs to get the JWT.
-
-Create a `.env` file in the client project root directory. The **Client ID** and **Issuer URI** are the values you used above in the Spring Boot `application.properties` file. The **Server URI** is the local URI for the Spring Boot API. You can leave this unless you made a change (this gets used in the `Api.js` file).
-
-`.env`
-
+. Create a `.env` file in the client project root directory. The **Client ID** and **Issuer URI** are the values you used above in the Spring Boot `application.properties` file. The **Server URI** is the local URI for the Spring Boot API. You can leave this unless you made a change (this gets used in the `Api.js` file).
++
 [source,env]
+.`.env`
 ----
 VUE_APP_CLIENT_ID=<your-client-id>
 VUE_APP_ISSUER_URI=<your-issuer-uri>
 VUE_APP_SERVER_URI=http://localhost:9000
 ----
++
+TIP: If you want to keep the `.env` file out of the repository, you need to update the `.gitignore` file. There's no particular need to do this for the Client ID as it will be publicly available anyway.
 
-It's important to note that putting values like this in a `.env` file in a client application does not make them secure. It helps by keeping them out of a repository. However, they are still public because they are necessarily visible in the JavaScript code sent to the browser. In this use case, it's more of a configuration and organizational tool than a security tool.
+. Replace `App.vue` with the following.
 
-If you want to keep the `.env` file out of the repository, you need to update the `.gitignore` file. There's no particular need to do this for the Client ID as it will be publicly available anyway.
-
-Replace `App.vue` with the following.
-
-`src/App.vue`
-
-
-[source,vue]
+[source,js]
+.`src/App.vue`
 ----
 <template>
   <q-layout view="hHh lpR fFf">
@@ -533,8 +449,8 @@ Replace `App.vue` with the following.
           </q-avatar>
           Todo App
         </q-toolbar-title>
-        {{ this.claims && this.claims.email ? claims.email : '' }}
-        <q-btn flat round dense icon="logout" v-if='authState && authState.isAuthenticated' @click="logout"/>
+        {{ isAuthenticated ? user.email : "" }}
+        <q-btn flat round dense icon="logout" v-if='isAuthenticated' @click="logout"/>
         <q-btn flat round dense icon="account_circle" v-else @click="login"/>
       </q-toolbar>
     </q-header>
@@ -547,49 +463,33 @@ Replace `App.vue` with the following.
 </template>
 
 <script>
+
+import { useAuth0 } from '@auth0/auth0-vue';
+
 export default {
-  name: 'LayoutDefault',
-  data: function () {
+  setup() {
+
+    const { loginWithRedirect, user, isAuthenticated, logout } = useAuth0();
+
     return {
-      claims: null
-    }
-  },
-  watch: {
-    'authState.isAuthenticated'() {
-      this.$log.debug(("watch triggered!"))
-      this.updateClaims()
-    }
-  },
-  created() {
-    this.updateClaims()
-  },
-  methods: {
-    async updateClaims() {
-      if (this.authState && this.authState.isAuthenticated) {
-        this.claims = await this.$auth.getUser()
-      }
-    },
-    async login() {
-      await this.$auth.signInWithRedirect({ originalUri: '/todos' })
-    },
-    async logout() {
-      await this.$auth.signOut()
-    }
-  },
+      login: () => {
+        loginWithRedirect();
+      },
+      logout: () => {
+        logout({ returnTo: window.location.origin });
+      },
+      user,
+      isAuthenticated
+    };
+  }
 }
 </script>
 ----
 
-
-This top-level component defines the header bar and includes the router component. The header bar has a login or logout button and will show the authenticated user's email address when logged in.
-
-The app gets the authenticated user's email address from the JWT claims. (A claim is a piece of information asserted about the subject by the authenticating authority.) This happens in the `updateClaims()` method, which is triggered when the component is created, and is also triggered by a watch method so that it is updated as the authenticated state changes.
-
-Create a new file to encapsulate the resource server access logic.
-
-`src/Api.js`
-
+. Create a new file to encapsulate the resource server access logic.
++
 [source,js]
+.`src/Api.js`
 ----
 import axios from 'axios'
 
@@ -601,7 +501,7 @@ const instance = axios.create({
 const createApi = (auth) => {
 
   instance.interceptors.request.use(async function (config) {
-    let accessToken = auth.getAccessToken()
+    let accessToken = auth.getAccessTokenSilently()
     config.headers = {
       Authorization: `Bearer ${accessToken}`
     }
@@ -641,13 +541,10 @@ const createApi = (auth) => {
 export default createApi
 ----
 
-All of the requests to the server go through this module. Take a look at how the access token is retrieved from the global `auth` object and injected into every request.
-
-Create the router file.
-
-`src/router/index.js`
+. Create the router file.
 
 [source,js]
+.`src/router/index.js`
 ----
 import { createRouter, createWebHistory } from 'vue-router'
 import { navigationGuard } from '@okta/okta-vue'
@@ -680,14 +577,10 @@ router.beforeEach(navigationGuard)
 export default router
 ----
 
-The router has three paths. The home path and the todos path are straightforward. The Okta Vue SDK provides the last path, `/callback`, to handle the login redirect from the Okta servers after authentication.
-
-Create the `Home` component.
-
-`src/components/Home.vue`
-
+. Create a `Home` component.
 
 [source,vue]
+.`src/components/Home.vue`
 ----
 <template>
   <div class="column justify-center items-center" id="row-container">
@@ -738,13 +631,10 @@ export default {
 </script>
 ----
 
-
-Create the `TodoItem` component.
-
-`src/components/TodoItem.vue`
-
+. Create the `TodoItem` component.
 
 [source,vue]
+.`src/components/TodoItem.vue`
 ----
 <template>
   <q-item-section avatar class="check-icon" v-if="this.item.completed">
@@ -853,14 +743,10 @@ input.list-item-input {
 </style>
 ----
 
-
-This component encapsulates a single todo item. It has logic for editing the title, setting the completed status, and deleting items. If you look closely at the code, you'll notice that it sends changes to the server and updates the local copy stored in the `todos` array in the parent component.
-
-Create the `Todos` component.
-
-`src/components/Todos.vue`
+. Create the `Todos` component.
 
 [source,vue]
+.`src/components/Todos.vue`
 ----
 <template>
   <div class="column justify-center items-center" id="row-container">
@@ -1071,40 +957,27 @@ export default {
 </style>
 ----
 
-
-This component encapsulates the card that holds all of the todos and the todo-associated interface elements. It also handles the rest of the functions related to updating todos on the server and in the local cache.
-
-You're welcome to delete the `HelloWorld.vue` component if you want. Or you can leave it. It's not needed.
-
 == Confirm your Spring Boot and Vue todo app works
 
-Make sure the Spring Boot API is still running. In a separate Bash shell, from the resource server directory, run the following command (if it is not already still running).
-
+. Make sure the Spring Boot API is still running. In a separate Bash shell, from the resource server directory, run the following command (if it is not already still running).
++
 [source,shell]
 ----
 ./gradlew bootRun
 ----
 
-Start the Vue app using the embedded development server. From the client directory:
-
+. Start the Vue app using the embedded development server. From the client directory:
++
 [source,shell]
 ----
 npm run serve
 ----
 
-Open a browser and navigate to `http://localhost:8080`. You'll see the "please log in" page.
+. Open a browser and navigate to `http://localhost:8080`. You'll see the "please log in" page. Log into the app using Auth0's sign-in interface.
 
-{% img blog/spring-boot-vue3/please-log-in.png alt:"Please log in" width:"1000" %}{: .center-image }
+. That will redirect you to the Todo app's main screen.
 
-Log into the app using Okta's sign-in interface.
-
-{% img blog/spring-boot-vue3/okta-login.png alt:"Okta SSO login" width:"600" %}{: .center-image }
-
-That will redirect you to the Todo app's main screen.
-
-{% img blog/spring-boot-vue3/app-main-screen.png alt:"Todo app main screen" width:"1000" %}{: .center-image }
-
-You should be able to delete items, add new items, rename, and filter items. All data is stored on the Spring Boot resource server and is presented by the Vue + Quasar frontend.
+. You should be able to delete items, add new items, rename, and filter items. All data is stored on the Spring Boot resource server and is presented by the Vue + Quasar frontend.
 
 == Use Auth0 to secure the API
 
@@ -1186,7 +1059,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.authorizeHttpRequests()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
@@ -1216,8 +1089,8 @@ public class SecurityConfiguration {
 }
 ----
 
-Install the https://github.com/auth0/auth0-cli[Auth0 CLI] and run `auth0 login` in a terminal.
-
+. Install the https://github.com/auth0/auth0-cli[Auth0 CLI] and run `auth0 login` in a terminal.
++
 [source,shell]
 ----
 Waiting for the login to complete in the browser... done
@@ -1225,11 +1098,11 @@ Waiting for the login to complete in the browser... done
  ▸    Successfully logged in.
  ▸    Tenant: dev-0xb84jzp.us.auth0.com
 ----
-
++
 Take note of the domain listed as the tenant. This is your Auth0 domain. If you need to find it again later, you can use `auth0 tenants list`.
 
-Update`src/main/resources/application.properties`. Fill in your actual Auth0 domain.
-
+. Update`src/main/resources/application.properties`. Fill in your actual Auth0 domain.
++
 [source,properties]
 ----
 server.port=9000
@@ -1237,15 +1110,15 @@ auth0.audience=http://my-api
 spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>/
 ----
 
-Start the API.
-
+. Start the API.
++
 [source,shell]
 ----
 ./gradlew bootRun
 ----
 
-Make sure it starts successfully.
-
+. Make sure it starts successfully.
++
 [source,shell]
 ----
 2022-10-06 10:09:59.535  INFO 89160 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 9000 (http) with context path ''
@@ -1259,15 +1132,15 @@ Todo(id=5, title=Go kayaking, completed=true)
 > :bootRun
 ----
 
-Open a second terminal window in the same directory. Create a test Auth0 API. The Auth0 API is what exposes identity functionality for all authentication and authorization protocols, such as OpenID Connect and OAuth.
-
+. Open a second terminal window in the same directory. Create a test Auth0 API. The Auth0 API is what exposes identity functionality for all authentication and authorization protocols, such as OpenID Connect and OAuth.
++
 [source,shell]
 ----
 auth0 apis create -n myapi --identifier http://my-api
 ----
 
-Just press enter three times to accept the default values for scopes, token lifetime, and allow offline access. The scopes here refer to custom scopes, not the standard scopes (email, profile, and openid) that you will need for OIDC and OAuth.
-
+. Just press enter three times to accept the default values for scopes, token lifetime, and allow offline access. The scopes here refer to custom scopes, not the standard scopes (email, profile, and openid) that you will need for OIDC and OAuth.
++
 [source,shell]
 ----
  Scopes:
@@ -1284,31 +1157,31 @@ Just press enter three times to accept the default values for scopes, token life
   ALLOW OFFLINE ACCESS  ✗
 ----
 
-Use Auth0 CLI to create a token.  **Don't forget to set the audience!**
-
+. Use the Auth0 CLI to create a token.  **Don't forget to set the audience!**
++
 [source,shell]
 ----
 auth0 test token -a http://my-api
 ----
 
-If you don't use the `-a` flag to set the audience to your Auth0 API, the test token you create will be an opaque token that cannot be verified and will not work. If you decide to use a different Auth0 API for some reason, you need to make sure the audience identifiers match in the `application.properties` file and the command to create a test token.
+. If you don't use the `-a` flag to set the audience to your Auth0 API, the test token you create will be an opaque token that cannot be verified and will not work. If you decide to use a different Auth0 API for some reason, you need to make sure the audience identifiers match in the `application.properties` file and the command to create a test token.
 
-Save the token in a shell variable.
-
+. Save the token in a shell variable.
++
 [source,shell]
 ----
 TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5yMWZw...
 ----
 
-You can verify that the endpoint is protected.
-
+. You can verify that the endpoint is protected.
++
 [source,shell]
 ----
 http :9000/todos
 ----
 
-And test the protected endpoint using the token.
-
+. And test the protected endpoint using the token.
++
 [source,shell]
 ----
 http :9000/todos "Authorization: Bearer $TOKEN"
@@ -1316,8 +1189,8 @@ http :9000/todos "Authorization: Bearer $TOKEN"
 
 == Update the Vue client to use Auth0
 
-Auth0 has https://auth0.com/docs/quickstart/spa/vuejs/01-login[helpful docs] for integrating with Vue. The first step is to create an OpenID Connect (OIDC) application on the Auth0 servers using their CLI. Open a terminal and navigate to the `client` project directory.
-
+. Auth0 has https://auth0.com/docs/quickstart/spa/vuejs/01-login[helpful docs] for integrating with Vue. The first step is to create an OpenID Connect (OIDC) application on the Auth0 servers using their CLI. Open a terminal and navigate to the `client` project directory.
++
 [source,shell]
 ----
 auth0 apps create
@@ -1326,7 +1199,7 @@ auth0 apps create
 - **Name**: `vue-spring-boot`
 - **Type**: Single Page Web Application
 - **All the URLs**: `http://localhost:8080`
-
++
 [source,shell]
 ----
  Name: vue-spring-boot
@@ -1340,8 +1213,8 @@ auth0 apps create
 === dev-0rb77iup.us.auth0.com application created
 ----
 
-Update the `.env` file. Fill in the OIDC Client ID and Auth0 domain.
-
+. Update the `.env` file. Fill in the OIDC Client ID and Auth0 domain.
++
 [source,env]
 ----
 VUE_APP_CLIENT_ID=<your-client-id>
@@ -1349,25 +1222,18 @@ VUE_APP_AUTH0_DOMAIN=<your-auth0-domain>
 VUE_APP_AUTH0_AUDIENCE=http://my-api
 VUE_APP_SERVER_URI=http://localhost:9000
 ----
-
++
 Notice that the audience is the same as the audience used to create the test token, which is the Auth0 API.
 
-Install the https://github.com/auth0/auth0-vue[Auth0 Vue SDK]. Make sure you're in the `client` directory.
-
+. Install the https://github.com/auth0/auth0-vue[Auth0 Vue SDK]. Make sure you're in the `client` directory.
++
 [source,shell]
 ----
-npm install @auth0/auth0-vue
+npm install @auth0/auth0-vue@2
 ----
 
-If you want, you can remove the Okta Vue SDK.
-
-[source,shell]
-----
-npm remove @okta/okta-vue
-----
-
-Update `src/main.js` to the following. This configures and installs the Auth0 plugin for Vue.
-
+. Update `src/main.js` to the following. This configures and installs the Auth0 plugin for Vue.
++
 [source,vue]
 ----
 import { createApp } from 'vue'
@@ -1396,9 +1262,11 @@ const app = createApp(App)
   .use(router)
   .use(createAuth0({
     domain: process.env.VUE_APP_AUTH0_DOMAIN,
-    client_id: process.env.VUE_APP_CLIENT_ID,
-    redirect_uri: window.location.origin,
-    audience: process.env.VUE_APP_AUTH0_AUDIENCE
+    clientId: process.env.VUE_APP_CLIENT_ID,
+    authorizationParams: {
+      redirect_uri: window.location.origin,
+      audience: process.env.VUE_APP_AUTH0_AUDIENCE
+    },
   })
 );
 
@@ -1408,22 +1276,22 @@ app.config.globalProperties.$api = createApi(app.config.globalProperties.$auth0)
 app.mount('#app')
 ----
 
-Update one line in `src/Api.js`. You need to change the following line.
-
+. Update one line in `src/Api.js`. You need to change the following line.
++
 [source,js]
 ----
 let accessToken = auth.getAccessToken()
 ----
 
-To this.
-
+. To this.
++
 [source,js]
 ----
 const accessToken = await auth.getAccessTokenSilently();
 ----
 
-As is seen below.
-
+. As is seen below.
++
 [source,shell]
 ----
 import axios from 'axios'
@@ -1451,9 +1319,8 @@ const createApi = (auth) => {
 export default createApi
 ----
 
-Update `src/App.vue`.
-
-
+. Update `src/App.vue`.
++
 [source,vue]
 ----
 <template>
@@ -1504,10 +1371,8 @@ export default {
 </script>
 ----
 
-
-Update `src/components/Home.vue`.
-
-
+. Update `src/components/Home.vue`.
++
 [source,vue]
 ----
 <template>
@@ -1557,8 +1422,8 @@ export default {
 </script>
 ----
 
-Finally, update `src/router/index.js`.
-
+. Finally, update `src/router/index.js`.
++
 [source,js]
 ----
 import { createRouter, createWebHistory } from 'vue-router'
@@ -1587,20 +1452,14 @@ const router = createRouter({
 export default router
 ----
 
-The usage of the Auth0 SDK is pretty similar to the Okta Vue SDK. If you have any questions, https://github.com/auth0/auth0-vue[take a look at the auth0-vue GitHub repository].
-
-Make sure your Spring Boot API is still running. Run the client.
-
+. Make sure your Spring Boot API is still running. Run the client.
++
 [source,shell]
 ----
 npm run serve
 ----
 
-This time when you log in you will be directed to Auth0.
-
-{% img blog/spring-boot-vue3/auth0-login.png alt:"Auth0 Login" width:"600" %}{: .center-image }
-
-After that, you will be redirected back to the todo app.
+. This time when you log in you will be directed to Auth0. Then, you will be redirected back to the todo app.
 
 == Do more with Spring Boot, Vue, and Okta
 
