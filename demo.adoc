@@ -97,6 +97,9 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>
 
 . Create a `SecurityConfiguration` class to configure Spring Security. [`sbv-security-config`]
 +
+.`SecurityConfiguration.java`
+[%collapsible]
+====
 [source,java]
 ----
 package com.example.demo;
@@ -143,8 +146,13 @@ public class SecurityConfiguration {
     }
 }
 ----
+====
 
 . Create an `AudienceValidator` in the same package to validate JWTs. [`sbv-validator`]
++
+.`AudienceValidator.java`
+[%collapsible]
+====
 +
 [source,java]
 ----
@@ -172,9 +180,13 @@ class AudienceValidator implements OAuth2TokenValidator<Jwt> {
     }
 }
 ----
+====
 
 . Replace the `DemoApplication.java` file with the following. [`sbv-demo`]
 +
+.`DemoApplication.java`
+[%collapsible]
+====
 [source,java]
 ----
 package com.example.demo;
@@ -242,11 +254,15 @@ public class DemoApplication {
             config.exposeIdsFor(Todo.class);
         }
     }
-
 }
 ----
+====
 
 . Create a `Todo.java` class to hold data. [`sbv-todo`]
++
+.`Todo.java`
+[%collapsible]
+====
 +
 [source,java]
 ----
@@ -271,9 +287,9 @@ public class Todo {
     private String title;
 
     private Boolean completed = false;
-
 }
 ----
+====
 
 . Create a `TodoRepository` interface to persist the data model.
 +
@@ -306,7 +322,7 @@ http :9000/todos
 
 . You should see a response like the following:
 +
-[source,shell]
+[source,json]
 ----
 HTTP/1.1 200
 ...
@@ -432,6 +448,9 @@ npm i axios@1.2.3 vuejs3-logger@1.0.0 vue-router@4.1.6 @auth0/auth0-vue@2
 
 . Update `src/main.js`. This configures and installs the Auth0 plugin for Vue. [`sbv-main`]
 +
+.`main.js`
+[%collapsible]
+====
 [source,js]
 ----
 import { createApp } from 'vue'
@@ -473,9 +492,13 @@ app.config.globalProperties.$api = createApi(app.config.globalProperties.$auth0)
 
 app.mount('#app')
 ----
+====
 
 . Replace `App.vue` with the following. [`sbv-app`]
 +
+.`App.vue`
+[%collapsible]
+====
 [source,js]
 ----
 <template>
@@ -525,9 +548,13 @@ export default {
 }
 </script>
 ----
+====
 
-. Create a new file to encapsulate the resource server access logic. [`sbv-api`]
+. Create a new `src/Api.js` file to encapsulate the resource server access logic. [`sbv-api`]
 +
+.`Api.js`
+[%collapsible]
+====
 [source,js]
 ----
 import axios from 'axios'
@@ -579,9 +606,13 @@ const createApi = (auth) => {
 
 export default createApi
 ----
+====
 
 . Create a router file at `src/router/index.js`. [`sbv-router`]
 +
+.`index.js`
+[%collapsible]
+====
 [source,js]
 ----
 import { createRouter, createWebHistory } from 'vue-router'
@@ -609,9 +640,13 @@ const router = createRouter({
 
 export default router
 ----
+====
 
 . Create a `src/components/Home.vue` component. [`sbv-home`]
 +
+.`Home.vue`
+[%collapsible]
+====
 [source,vue]
 ----
 <template>
@@ -660,9 +695,13 @@ export default {
 }
 </script>
 ----
+====
 
 . Create a `TodoItem` component. [`sbv-todo-item`]
 +
+.`TodoItem.vue`
+[%collapsible]
+====
 [source,vue]
 ----
 <template>
@@ -771,9 +810,13 @@ input.list-item-input {
 }
 </style>
 ----
+====
 
 . Create a `Todos` component. [`sbv-todos`]
 +
+.`Todos.vue`
+[%collapsible]
+====
 [source,vue]
 ----
 <template>
@@ -981,6 +1024,7 @@ export default {
 }
 </style>
 ----
+====
 
 == Confirm your Spring Boot and Vue todo app works
 
@@ -998,7 +1042,7 @@ export default {
 npm run serve
 ----
 
-. Open a browser and navigate to `http://localhost:8080`. You'll see the "please log in" page. Log into the app using Auth0.
+. Open a browser and navigate to `http://localhost:8080`. Log into the app using Auth0.
 
 . You should be able to delete items, add new items, rename, and filter items. All data is stored on the Spring Boot resource server and is presented by the Vue + Quasar frontend.
 
