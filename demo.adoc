@@ -41,7 +41,7 @@ auth0 apps create
 +
 - **Name**: `vue-spring-boot`
 - **Type**: Single Page Web Application
-- **All the URLs**: `http://localhost:8080`
+- **All the URLs**: `\http://localhost:8080`
 
 . Create a `.env` file. Fill in the OIDC Client ID and Auth0 domain.
 +
@@ -75,18 +75,7 @@ curl https://start.spring.io/starter.tgz \
 | tar -xzvf - && cd resource-server
 ----
 
-// todo: verify build.gradle has all the necessary dependencies
-
 == Configure Spring Security
-
-. Open the `application.properties` properties file and update it. The server port is changed so it doesn't conflict with the default Vue local server (which also defaults `8080`).
-+
-[source,properties]
-----
-server.port=9000
-auth0.audience=http://my-api
-spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>/
-----
 
 . You can run the bootstrapped project right now and see if it starts. It should start but won't do much.
 +
@@ -104,13 +93,9 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>
 ----
 package com.example.demo;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -119,64 +104,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests()
-            .anyRequest().authenticated()
-            .and()
-            .oauth2ResourceServer().jwt();
+            .anyRequest().permitAll();
         return http.build();
-    }
-
-    @Value("${auth0.audience}")
-    private String audience;
-
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private String issuer;
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
-            JwtDecoders.fromOidcIssuerLocation(issuer);
-
-        OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(audience);
-        OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
-        OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
-
-        jwtDecoder.setJwtValidator(withAudience);
-
-        return jwtDecoder;
-    }
-}
-----
-====
-
-. Create an `AudienceValidator` in the same package to validate JWTs. [`sbv-validator`]
-+
-.`AudienceValidator.java`
-[%collapsible]
-====
-+
-[source,java]
-----
-package com.example.demo;
-
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jwt.Jwt;
-
-class AudienceValidator implements OAuth2TokenValidator<Jwt> {
-    private final String audience;
-
-    AudienceValidator(String audience) {
-        this.audience = audience;
-    }
-
-    public OAuth2TokenValidatorResult validate(Jwt jwt) {
-        OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
-
-        if (jwt.getAudience().contains(audience)) {
-            return OAuth2TokenValidatorResult.success();
-        }
-        return OAuth2TokenValidatorResult.failure(error);
     }
 }
 ----
@@ -381,6 +310,76 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
+. Add a JWT decoder bean that does audience validation. [`sbv-decoder`]
++
+.`SecurityConfiguration.java`
+[%collapsible]
+====
+[source,java]
+----
+@Value("${auth0.audience}")
+private String audience;
+
+@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+private String issuer;
+
+@Bean
+JwtDecoder jwtDecoder() {
+    NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
+
+    OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(audience);
+    OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
+    OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
+
+    jwtDecoder.setJwtValidator(withAudience);
+
+    return jwtDecoder;
+}
+----
+====
+
+. Create an `AudienceValidator` in the same package to validate JWTs. [`sbv-validator`]
++
+.`AudienceValidator.java`
+[%collapsible]
+====
+[source,java]
+----
+package com.example.demo;
+
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.Jwt;
+
+class AudienceValidator implements OAuth2TokenValidator<Jwt> {
+    private final String audience;
+
+    AudienceValidator(String audience) {
+        this.audience = audience;
+    }
+
+    public OAuth2TokenValidatorResult validate(Jwt jwt) {
+        OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
+
+        if (jwt.getAudience().contains(audience)) {
+            return OAuth2TokenValidatorResult.success();
+        }
+        return OAuth2TokenValidatorResult.failure(error);
+    }
+}
+----
+====
+
+. Open the `application.properties` properties file and update it. The server port is changed so it doesn't conflict with the default Vue local server (which also defaults `8080`).
++
+[source,properties]
+----
+server.port=9000
+auth0.audience=http://my-api
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>/
+----
+
 . Restart the server. Use `CTRL + C` to stop it if it's running.
 +
 [source,shell]
@@ -444,6 +443,13 @@ You can just accept the defaults.
 [source,shell]
 ----
 npm i axios@1.2.3 vuejs3-logger@1.0.0 vue-router@4.1.6 @auth0/auth0-vue@2
+----
+
+. Move the `.env` file you created earlier to the `client` directory.
++
+[source,shell]
+----
+mv ../.env .
 ----
 
 . Update `src/main.js`. This configures and installs the Auth0 plugin for Vue. [`sbv-main`]
