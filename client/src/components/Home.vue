@@ -3,7 +3,7 @@
     <q-card class="my-card">
       <q-card-section style="text-align: center">
         <div v-if='isAuthenticated'>
-          <h6>You are logged in as {{user.email}}</h6>
+          <h6>You are logged in as {{ user.email }}</h6>
           <q-btn flat color="primary" @click="todo">Go to Todo app</q-btn>
           <q-btn flat @click="logout">Log out</q-btn>
         </div>
@@ -32,7 +32,7 @@ export default {
         loginWithRedirect();
       },
       logout: () => {
-        logout({ returnTo: window.location.origin });
+        logout({ logoutParams: { returnTo: window.location.origin } });
       },
       todo() {
         router.push('/todos')
