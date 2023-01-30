@@ -253,7 +253,7 @@ interface TodoRepository extends JpaRepository<Todo, Long> {}
 +
 [source,shell]
 ----
-http :9000/todos
+http :8080/todos
 ----
 
 . You should see a response like the following:
