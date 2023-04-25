@@ -7,8 +7,8 @@ Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://develo
 **Prerequisites:**
 
 - [Java 17](https://adoptium.net/)
-- [Okta CLI](https://cli.okta.com/manual/#installation)
-- [Node 16+](https://nodejs.org)
+- [Auth0 CLI](https://github.com/auth0/auth0-cli#-installation)
+- [Node 18+](https://nodejs.org)
 
 You will need a free Okta Developer account if you don't already have one. You will be able to sign up for one in the instructions below using the Okta CLI.
 
@@ -32,9 +32,7 @@ okta apps create
 ```
 
 - The default name is fine.
-
 - Select **2: Single Page App**
-
 - The default redirect URIs are fine.
 
 You need to put the **Issuer** and **Client ID** into two places. The first is to configure the Spring Boot API. The second configures the Vue client. Replace the bracketed values below with the values from the Okta CLI output.
