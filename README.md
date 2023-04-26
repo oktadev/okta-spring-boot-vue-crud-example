@@ -7,7 +7,7 @@ Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://develo
 **Prerequisites:**
 
 - [Java 17](https://adoptium.net/)
-- [Auth0 CLI](https://github.com/auth0/auth0-cli#-installation)
+- [Okta CLI](https://cli.okta.com/manual/#installation)
 - [Node 18+](https://nodejs.org)
 
 You will need a free Okta Developer account if you don't already have one. You will be able to sign up for one in the instructions below using the Okta CLI.
