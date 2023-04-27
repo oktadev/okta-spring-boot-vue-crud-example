@@ -8,7 +8,7 @@ Please read [Build a Simple CRUD App with Spring Boot and Vue.js](https://develo
 
 - [Java 17](https://adoptium.net/)
 - [Auth0 CLI](https://github.com/auth0/auth0-cli#-installation)
-- [Node 16+](https://nodejs.org)
+- [Node 18+](https://nodejs.org)
 
 You will need an Auth0 account if you don't already have one. Sign up for a free account at [auth0.com/signup](https://auth0.com/signup).
 
@@ -33,8 +33,8 @@ Update `resource-server/src/main/resources/application.properties` with your Aut
 
 ```properties
 server.port=9000
-auth0.audience=http://my-api
-spring.security.oauth2.resourceserver.jwt.issuer-uri=https://<your-auth0-domain>/
+okta.oauth2.issuer=https://<your-auth0-domain>/
+okta.oauth2.audience=http://my-api
 ```
 
 Create a new OIDC app on Auth0:
@@ -85,6 +85,7 @@ Open a browser to `http://localhost:8080`.
 This example uses the following open source libraries from Okta:
 
 * [Auth0 Vue SDK](https://github.com/auth0/auth0-vue)
+* [Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)
 
 ## Help
 
